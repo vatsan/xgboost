@@ -153,7 +153,7 @@ xgb.cv <- function(params=list(), data, nrounds, nfold, label = NULL, missing = 
   params <- c(params, list(silent = 1))
   print_every_n <- max( as.integer(print_every_n), 1L)
   if (!has.callbacks(callbacks, 'cb.print.evaluation') && verbose) {
-    callbacks <- add.cb(callbacks, cb.print.evaluation(print_every_n))
+    callbacks <- add.cb(callbacks, cb.print.evaluation(print_every_n, showsd=showsd))
   }
   # evaluation log callback: always is on in CV
   evaluation_log <- list()
@@ -181,8 +181,8 @@ xgb.cv <- function(params=list(), data, nrounds, nfold, label = NULL, missing = 
   bst_folds <- lapply(1:length(folds), function(k) {
     dtest  <- slice(dall, folds[[k]])
     dtrain <- slice(dall, unlist(folds[-k]))
-    bst <- xgb.Booster(params, list(dtrain, dtest))
-    list(dtrain=dtrain, bst=bst, watchlist=list(train=dtrain, test=dtest), index=folds[[k]])
+    handle <- xgb.Booster.handle(params, list(dtrain, dtest))
+    list(dtrain=dtrain, bst=handle, watchlist=list(train=dtrain, test=dtest), index=folds[[k]])
   })
   # a "basket" to collect some results from callbacks
   basket <- list()
